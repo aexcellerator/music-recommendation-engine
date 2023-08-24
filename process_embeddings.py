@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import requests
-import os
 
-DATASET_CONVERTED = "dataset_converted"
+def get_embedding(filepath: str, embedding_gen_url: str="http://127.0.0.1:5000/model/predict"):
+    files = {
+        "audio": (filepath, open(filepath, "rb"), "audio/x-wav")
+    }
+    response = requests.post(embedding_gen_url, files=files)
+    return response.json()["embedding"]
 
-url = "http://0.0.0.0:5000/model/predict"
-files = {
-    "audio": (os.path.join(DATASET_CONVERTED, "Beast - Vicetone Vs. Nico Vega.wav"), open(os.path.join(DATASET_CONVERTED, "Beast - Vicetone Vs. Nico Vega.wav"), "rb"), "audio/x-wav")
-}
-response = requests.post(url, files=files)
-print(dir(response))
-print(type(response.json()["embedding"][0][0]))
+if __name__ == "__main__":
+    print(get_embedding("dataset_converted/Beast - Vicetone Vs. Nico Vega.wav")) 
