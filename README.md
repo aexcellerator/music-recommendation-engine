@@ -19,3 +19,12 @@ A local music recommendation engine
     2. process\_embeddings.py [input: the wav files; output: embeddings, corresponding identification to relate the tags afterwards]
     3. music\_recommender.py [input: the embeddings, the identification, user input music file; output: the suggested music]
     4. (helper\_function.py: maybe needed to improve the project layout)
+
+## Installation
+1. install docker using the [official guide](https://docs.docker.com/engine/install/) for your distribution
+2. setup the MAX-Audio-Embedding-Generator using the guide on their README.md.
+    - For direct deployment use the command:
+    ```
+    $ docker run -it -p 5000:5000 quay.io/codait/max-audio-embedding-generator
+    ```
+3.
