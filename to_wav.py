@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pydub import AudioSegment
 from pydub.utils import mediainfo
+import pydub.exceptions as dubex
 import os 
 from typing import List
 import argparse
@@ -36,11 +37,19 @@ def converter(des:str, imp:str, is_dir:bool, starttime: int, length: int):
     
     if is_dir == True:
         m_files: List[str] = os.listdir(INPUT_DIR)
-        for f in m_files:
-            song: AudioSegment = AudioSegment.from_mp3(os.path.join(INPUT_DIR, f))
-            sliced_ten_secs = song[starttime:starttime+length]
-            print(os.path.splitext(f)[1])
-            sliced_ten_secs.export(os.path.join(OUTPUT_DIR, os.path.splitext(f)[0] + ".wav"), format="wav")
+        if len(m_files) != 0:
+            for f in m_files:
+                s = os.path.splitext(f)[1]
+                try:
+                    song: AudioSegment = AudioSegment.from_file(os.path.join(INPUT_DIR, f), s[1:])
+                except dubex.CouldntDecodeError:
+                    print("The format '" + s + "' is not supported")
+                    sys.exit()
+                sliced_ten_secs = song[starttime:starttime+length]
+                print(os.path.splitext(f)[1])
+                sliced_ten_secs.export(os.path.join(OUTPUT_DIR, os.path.splitext(f)[0] + ".wav"), format="wav")
+        else:
+            print("The folder '" + INPUT_DIR + "' is empty!")
 
         return m_files            
     elif is_dir == False:
@@ -50,12 +59,9 @@ def converter(des:str, imp:str, is_dir:bool, starttime: int, length: int):
             sliced_ten_secs = song[starttime:starttime+length]
             sliced_ten_secs.export(os.path.join(OUTPUT_DIR, os.path.splitext(imp)[0] + ".wav"), format="wav")
         else: 
-            raise ValueError("Destination Folder: " + des + " is not empty")
+            raise ValueError("Destination Folder: '" + des + "' is not empty")
     
     
-
-
-
 
 if __name__ == "__main__":
 
