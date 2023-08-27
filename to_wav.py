@@ -20,53 +20,66 @@ def parse_arguments():
     group.add_argument('-d', '--directory', help="takes a directory and converts everything to an wav file")
     group.add_argument('-f', '--file', help="takes an file and on base of this file will perferm an recommendation")
 
-  
-
     parser.add_argument('-df', '--destinationfolder', type=is_directory, help="takes an filepath, where the convertet file will be stored",
                     default=None)
-
-
+    
+    parser.add_argument('-t', '--starttime', help="Time at which the clip starts in ms",
+                    default=60000)
+    parser.add_argument('-l', '--length', help="Value how long the clip should be in ms",
+                    default=10000)
+    
     return parser.parse_args()
 
-def converter(des:str, imp:str, is_dir:bool):
+def converter(des:str, imp:str, is_dir:bool, starttime: int, length: int):
     OUTPUT_DIR = os.path.join(os.path.dirname(__file__), des)
     INPUT_DIR = os.path.join(os.path.dirname(__file__), imp) 
-    FIRST_MIN = 60000
     
     if is_dir == True:
         m_files: List[str] = os.listdir(INPUT_DIR)
         for f in m_files:
             song: AudioSegment = AudioSegment.from_mp3(os.path.join(INPUT_DIR, f))
-            sliced_ten_secs = song[FIRST_MIN:FIRST_MIN+10000]
+            sliced_ten_secs = song[starttime:starttime+length]
+            print(os.path.splitext(f)[1])
             sliced_ten_secs.export(os.path.join(OUTPUT_DIR, os.path.splitext(f)[0] + ".wav"), format="wav")
-            
+
+        return m_files            
     elif is_dir == False:
         dir = os.listdir(os.path.join(os.path.dirname(__file__), des))
         if len(dir) == 0: 
             song: AudioSegment = AudioSegment.from_mp3(os.path.join(INPUT_DIR))
-            sliced_ten_secs = song[FIRST_MIN:FIRST_MIN+10000]
+            sliced_ten_secs = song[starttime:starttime+length]
             sliced_ten_secs.export(os.path.join(OUTPUT_DIR, os.path.splitext(imp)[0] + ".wav"), format="wav")
         else: 
             raise ValueError("Destination Folder: " + des + " is not empty")
+    
+    
+
 
 
 
 if __name__ == "__main__":
 
     args = parse_arguments()
-
-
+    ret =[]
     if args.directory:
+        ret.append("directory")
+        ret.append(args.directory)
         if args.destinationfolder == None:
             if not os.path.isdir("dataset_converted"):
                 os.makedirs("dataset_converted")
             args.destinationfolder = "dataset_converted"
-        converter(args.destinationfolder, args.directory, True)
+        ret.append(args.destinationfolder)
+        converter(args.destinationfolder, args.directory, True, args.starttime, args.length)
     elif args.file:
+        ret.append("file")
+        ret.append(args.file)
         if args.destinationfolder == None:
             if not os.path.isdir("requestet_song_converted"):
                 os.makedirs("requestet_song_converted")
             args.destinationfolder = "requestet_song_converted"
-        converter(args.destinationfolder, args.file, False)
+        ret.append(args.destinationfolder)
+        converter(args.destinationfolder, args.file, False, args.starttime, args.length)
+
+    
 
     
