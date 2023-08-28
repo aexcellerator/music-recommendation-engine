@@ -1,21 +1,64 @@
-from annoy import AnnoyIndex
+import os
+import sys
+from typing import List
 import process_embeddings as pe
 import pandas as pd
+from annoy import AnnoyIndex
 
-def build_ann_index(file_list):
+DEFAULT_MAPPINGS_METADATA = "recommendation-metadata.csv"
+ANNOY_INDEX_FILE = "annoy_indices.ann"
+METRIC = "euclidean"
+
+def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> pd.Series:
+    """returns filepath of recommendend song
+    """  
+    # retrieve dimensionality of the embeddings 
+    if os.path.exists(metadata_file):
+        with open(metadata_file, "r") as f:
+                embedding_dim_str = f.readline().strip("\n")
+        try:
+            embedding_dim = int(embedding_dim_str)
+        except:
+            print("Could not load dimensions of embeddings, metadata file is corrupted please retry converting the dataset.")
+            sys.exit(1)
+    else:
+        raise IOError("Could not load metadata file, the file does not exist please retry converting the dataset.")
     
-    n_dimensions = len(pe.get_embedding(file_list[1]).flatten())
+    # skip dimensions entry and read the index to file mappings
+    idx_songs_df = pd.read_csv(metadata_file, skiprows=1)
 
-    with open("test3.csv", 'w') as opened_file:
+    # load the previously build index file
+    ann_index = AnnoyIndex(embedding_dim, METRIC)
+    
+    if not os.path.exists(annoy_idx_file):
+        raise IOError("Could not load annoy index file, the file does not exist please retry converting the dataset.")
+
+    if not ann_index.load(annoy_idx_file):
+        raise IOError("Could not properly load annoy index file, the file may be corrupted please retry converting the dataset.")
+    
+    # retrieve from annoy the nn_count nearest neighbors and return their idx
+    idxs_nn = ann_index.get_nns_by_vector(pe.get_embedding(input_song), nn_count)
+
+    # return the file mappings of the indices
+    return idx_songs_df.iloc[idxs_nn]
+
+def build_ann_index(file_list: List[str]):
+    
+    n_dimensions = len(pe.get_embedding(file_list[0]).flatten())
+
+    with open(DEFAULT_MAPPINGS_METADATA, 'w') as opened_file:
         opened_file.write(str(n_dimensions) + "\n")
      
     df = pd.DataFrame(file_list)
-    df.to_csv("test3.csv", header=False, mode='a')
+    df.to_csv(DEFAULT_MAPPINGS_METADATA, header=False, mode='a')
     
-    annoy_index = AnnoyIndex(n_dimensions, "euclidean")
-    annoy_index.on_disk_build("annoy_indices.ann")
+    annoy_index = AnnoyIndex(n_dimensions, METRIC)
+    annoy_index.on_disk_build(ANNOY_INDEX_FILE)
     
     for index, file in enumerate(file_list):
         annoy_index.add_item(index, pe.get_embedding(file).flatten())
 
     annoy_index.build(10)
+
+if __name__ == "__main__":
+    pass
