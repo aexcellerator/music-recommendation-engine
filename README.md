@@ -25,6 +25,6 @@ A local music recommendation engine
 2. setup the MAX-Audio-Embedding-Generator using the guide on their README.md.
     - For direct deployment use the command:
     ```
-    $ docker run -it -p 5000:5000 quay.io/codait/max-audio-embedding-generator
+    docker run -it -p 5000:5000 quay.io/codait/max-audio-embedding-generator
     ```
 3.
