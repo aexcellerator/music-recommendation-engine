@@ -63,14 +63,15 @@ def build_ann_index(file_list: List[str]):
 
 if __name__ == "__main__":
     dataset_filelist = [
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/24 Karat (Remix) - Kollegah feat. Seyed & Ali As.wav",
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/500 PS - Bonez MC & Raf Camora.wav",
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Beast - Vicetone Vs. Nico Vega.wav",
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Benzin im Blut (G4bby Feat. Bazz Boyz Remix) - Dj Gollum Feat. Akustikrausch.wav",
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Bleib in der Schule - Trailerpark.wav",
-            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Bück Dich hoch - Deichkind.wav"
+            "dataset_converted/24 Karat (Remix) - Kollegah feat. Seyed & Ali As.wav",
+            "dataset_converted/Beast - Vicetone Vs. Nico Vega.wav",
+            "dataset_converted/Benzin im Blut (G4bby Feat. Bazz Boyz Remix) - Dj Gollum Feat. Akustikrausch.wav",
+            "dataset_converted/Bleib in der Schule - Trailerpark.wav",
+            "dataset_converted/500 PS - Bonez MC & Raf Camora.wav",
+            "dataset_converted/Animals Anthem (Watch out for this) - Mashup Germany.wav"
             ]
-    recommendation_base = "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Animals Anthem (Watch out for this) - Mashup Germany.wav"
-    # build_ann_index(dataset_filelist) 
-    print(get_recommendation(recommendation_base, 1))
+    recommendation_base = "dataset_converted/Bück Dich hoch - Deichkind.wav"
+
+    build_ann_index(dataset_filelist) 
+    print(get_recommendation(recommendation_base, 3))
     
