@@ -32,18 +32,14 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def converter(impd:str, impf:str, des:str, starttime: int, length: int):
+def converter(inpd:str, inpf:str, des:str, starttime: int, length: int):
 
-    ret =[]
-    if impf == None:
-        ret.append("directory")
-        ret.append(impd)
+    if inpf == None:
         if des == None:
             if not os.path.isdir("dataset_converted"):
                 os.makedirs("dataset_converted")
             des = "dataset_converted"
-        ret.append(des)
-        input_dir = os.path.join(os.path.dirname(__file__), impd)
+        input_dir = os.path.join(os.path.dirname(__file__), inpd)
         output_dir = os.path.join(os.path.dirname(__file__), des)
 
         m_files: List[str] = os.listdir(input_dir)
@@ -56,8 +52,8 @@ def converter(impd:str, impf:str, des:str, starttime: int, length: int):
                     print("The format '" + s + "' is not supported")
                     sys.exit()
                 
-                sliced_ten_secs = song[starttime:starttime+length]
-                sliced_ten_secs.export(os.path.join(output_dir, os.path.splitext(f)[0] + ".wav"), format="wav")
+                song_clip = song[starttime:starttime+length]
+                song_clip.export(os.path.join(output_dir, os.path.splitext(f)[0] + ".wav"), format="wav")
                 
         else:
             print("The folder '" + input_dir + "' is empty!")
@@ -66,21 +62,18 @@ def converter(impd:str, impf:str, des:str, starttime: int, length: int):
         ret = [os.path.join(des, x) for x in os.listdir(output_dir)]
         return ret
     else:
-        ret.append("file") 
-        ret.append(impf)
         if des == None:
             if not os.path.isdir("requestet_song_converted"):
                 os.makedirs("requestet_song_converted")
             des = "requestet_song_converted"
-        ret.append(des)
-        input_dir = os.path.join(os.path.dirname(__file__), impf)
+        input_dir = os.path.join(os.path.dirname(__file__), inpf)
         output_dir = os.path.join(os.path.dirname(__file__), des)
         dir = os.listdir(os.path.join(os.path.dirname(__file__), des))
         if len(dir) == 0: 
             s = os.path.splitext(input_dir)[-1]
             song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir), s[1:])
-            sliced_ten_secs = song[starttime:starttime+length]
-            sliced_ten_secs.export(os.path.join(output_dir, os.path.splitext(impf)[0] + ".wav"), format="wav")
+            song_clip = song[starttime:starttime+length]
+            song_clip.export(os.path.join(output_dir, os.path.splitext(inpf)[0] + ".wav"), format="wav")
         else: 
             raise ValueError("Destination Folder: '" + des + "' is not empty")
         
