@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from pydub import AudioSegment
-from pydub.utils import mediainfo
 import pydub.exceptions as dubex
 import os 
 from typing import List
 import argparse
 import sys
 
+DATASET_CONVERTED = "dataset_converted"
+REQ_SONG_CONVERTED = "requestet_song_converted"
 
 def is_directory(arg: str):
     if not os.path.isdir(arg):
@@ -36,13 +37,16 @@ def converter(inpd: str, inpf: str, des: str, starttime: int, length: int):
 
     if inpf == None:
         if des == None:
-            if not os.path.isdir("dataset_converted"):
-                os.makedirs("dataset_converted")
-            des = "dataset_converted"
+            if not os.path.isdir(DATASET_CONVERTED):
+                os.makedirs(DATASET_CONVERTED)
+
+            des = DATASET_CONVERTED
+
         input_dir = os.path.join(os.path.dirname(__file__), inpd)
         output_dir = os.path.join(os.path.dirname(__file__), des)
 
         m_files: List[str] = os.listdir(input_dir)
+
         if len(m_files) != 0:
             for f in m_files:
                 s = os.path.splitext(f)[-1]
@@ -63,19 +67,20 @@ def converter(inpd: str, inpf: str, des: str, starttime: int, length: int):
         return ret
     else:
         if des == None:
-            if not os.path.isdir("requestet_song_converted"):
-                os.makedirs("requestet_song_converted")
-            des = "requestet_song_converted"
+            if not os.path.isdir(REQ_SONG_CONVERTED):
+                os.makedirs(REQ_SONG_CONVERTED)
+            des = REQ_SONG_CONVERTED
         input_dir = os.path.join(os.path.dirname(__file__), inpf)
         output_dir = os.path.join(os.path.dirname(__file__), des)
         dir = os.listdir(os.path.join(os.path.dirname(__file__), des))
+
         if len(dir) == 0: 
             s = os.path.splitext(input_dir)[-1]
             song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir), s[1:])
             song_clip = song[starttime:starttime+length]
             song_clip.export(os.path.join(output_dir, os.path.splitext(inpf)[0] + ".wav"), format="wav")
         else: 
-            raise ValueError("Destination directory: '" + des + "' is not empty")
+            raise ValueError("destination directory: '" + des + "' is not empty")
         
         return os.path.join(des, os.listdir(output_dir)[0])
     
