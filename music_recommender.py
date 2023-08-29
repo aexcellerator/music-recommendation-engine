@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 from typing import List
@@ -9,7 +10,7 @@ DEFAULT_MAPPINGS_METADATA = "recommendation-metadata.csv"
 ANNOY_INDEX_FILE = "annoy_indices.ann"
 METRIC = "euclidean"
 
-def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> pd.Series:
+def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> List[str]:
     """returns filepath of recommendend song
     """  
     # retrieve dimensionality of the embeddings 
@@ -25,7 +26,7 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
         raise IOError("Could not load metadata file, the file does not exist please retry converting the dataset.")
     
     # skip dimensions entry and read the index to file mappings
-    idx_songs_df = pd.read_csv(metadata_file, skiprows=1)
+    idx_songs_df = pd.read_csv(metadata_file, skiprows=1, header=None, names=["song_filepath"], index_col=0)
 
     # load the previously build index file
     ann_index = AnnoyIndex(embedding_dim, METRIC)
@@ -37,10 +38,10 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
         raise IOError("Could not properly load annoy index file, the file may be corrupted please retry converting the dataset.")
     
     # retrieve from annoy the nn_count nearest neighbors and return their idx
-    idxs_nn = ann_index.get_nns_by_vector(pe.get_embedding(input_song), nn_count)
+    idxs_nn = ann_index.get_nns_by_vector(pe.get_embedding(input_song).flatten(), nn_count)
 
     # return the file mappings of the indices
-    return idx_songs_df.iloc[idxs_nn]
+    return idx_songs_df.iloc[idxs_nn]["song_filepath"].to_list()
 
 def build_ann_index(file_list: List[str]):
     
@@ -61,4 +62,15 @@ def build_ann_index(file_list: List[str]):
     annoy_index.build(10)
 
 if __name__ == "__main__":
-    pass
+    dataset_filelist = [
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/24 Karat (Remix) - Kollegah feat. Seyed & Ali As.wav",
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/500 PS - Bonez MC & Raf Camora.wav",
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Beast - Vicetone Vs. Nico Vega.wav",
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Benzin im Blut (G4bby Feat. Bazz Boyz Remix) - Dj Gollum Feat. Akustikrausch.wav",
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Bleib in der Schule - Trailerpark.wav",
+            "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Bück Dich hoch - Deichkind.wav"
+            ]
+    recommendation_base = "/home/marc/documents/studium/sem6/scipy/project/music-recommendation-engine/dataset_converted/Animals Anthem (Watch out for this) - Mashup Germany.wav"
+    # build_ann_index(dataset_filelist) 
+    print(get_recommendation(recommendation_base, 1))
+    
