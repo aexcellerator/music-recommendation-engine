@@ -44,7 +44,9 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
     return idx_songs_df.iloc[idxs_nn]["song_filepath"].to_list()
 
 def build_ann_index(file_list: List[str]):
-    
+    if len(file_list) == 0:
+        print("dataset is empty, please rerun the dataset conversion")
+        sys.exit(1)
     n_dimensions = len(pe.get_embedding(file_list[0]).flatten())
 
     with open(DEFAULT_MAPPINGS_METADATA, 'w') as opened_file:
@@ -52,14 +54,12 @@ def build_ann_index(file_list: List[str]):
      
     df = pd.DataFrame(file_list)
     df.to_csv(DEFAULT_MAPPINGS_METADATA, header=False, mode='a')
-    
     annoy_index = AnnoyIndex(n_dimensions, METRIC)
     annoy_index.on_disk_build(ANNOY_INDEX_FILE)
     
     for index, file in enumerate(file_list):
         annoy_index.add_item(index, pe.get_embedding(file).flatten())
-
-    annoy_index.build(10)
+    annoy_index.build(50)
 
 if __name__ == "__main__":
     dataset_filelist = [
