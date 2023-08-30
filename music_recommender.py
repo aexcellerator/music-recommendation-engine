@@ -6,8 +6,8 @@ import process_embeddings as pe
 import pandas as pd
 from annoy import AnnoyIndex
 
-DEFAULT_MAPPINGS_METADATA = "recommendation-metadata.csv"
-ANNOY_INDEX_FILE = "annoy_indices.ann"
+DEFAULT_MAPPINGS_METADATA = os.path.join(os.path.dirname(__file__), ".cache", "recommendation-metadata.csv")
+ANNOY_INDEX_FILE = os.path.join(os.path.dirname(__file__), ".cache", "annoy_indices.ann")
 METRIC = "euclidean"
 
 def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> List[str] | None:
