@@ -21,18 +21,18 @@ A local music recommendation engine
     4. (helper\_function.py: maybe needed to improve the project layout)
 
 ## Installation
-- Requires a linux distribution with python, pip, ffmpeg and docker installed
-- Install required python libraries
+- Requires a linux distribution with python, pip, ffmpeg and docker installed.
+- Install required python libraries.
     ```
     pip install numpy pandas pydub requests annoy
     ```
-- setup the [MAX-Audio-Embedding-Generator](https://github.com/IBM/MAX-Audio-Embedding-Generator)
-    1. Install docker using the [official guide](https://docs.docker.com/engine/install/) for your distribution
+- Setup the [MAX-Audio-Embedding-Generator](https://github.com/IBM/MAX-Audio-Embedding-Generator).
+    1. Install docker using the [official guide](https://docs.docker.com/engine/install/) for your distribution.
     2. Setup the MAX-Audio-Embedding-Generator using the guide on [their README.md](https://github.com/IBM/MAX-Audio-Embedding-Generator).
         - For direct deployment use the command:
         ```
         docker run -it -p 5000:5000 quay.io/codait/MAX-Audio-Embedding-Generator
         ```
 - More information on the python libraries can be found on their github sites: [pydub](https://github.com/jiaaro/pydub), [requests](https://github.com/psf/requests), [annoy](https://github.com/spotify/annoy)
-- Note: the project should work on the Windows operating system when all dependencies have been installed, but we will not guarantee that.
+- Note: The project should work on the Windows operating system when all dependencies have been installed, but we will not guarantee that.
 - If there are any issues regarding the installation, please create a new Issue under the Issues Tab at this repository.
