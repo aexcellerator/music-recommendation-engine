@@ -13,14 +13,14 @@ REQ_SONG_CONVERTED: Final[str] = os.path.join(os.path.dirname(__file__), ".cache
 
 def is_directory(arg: str):
     if not os.path.isdir(arg):
-        raise argparse.ArgumentTypeError("The given argument was not a valid Path!")
+        raise argparse.ArgumentTypeError("The given argument was not a valid path, create the folder beforehand!")
     return arg
 
 def parse_arguments():
 
     parser = argparse.ArgumentParser(prog="music recommendation engine", description="provides song suggestions based on a previously processed dataset", add_help=True)
 
-    subparser = parser.add_subparsers(title="mode specifier", dest="mode", help="choose mode to use")
+    subparser = parser.add_subparsers(title="mode specifier", dest="mode", help="choose mode to use", required=True)
     dataset_mode = subparser.add_parser('ds-mode', help="specify this to change to dataset conversion mode")
     dataset_group = dataset_mode.add_argument_group("dataset conversion arguments")
     
@@ -52,6 +52,7 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
             os.makedirs(DATASET_CONVERTED)
 
         dest_folder = DATASET_CONVERTED
+
     input_dir = os.path.join(os.path.dirname(__file__), path)
     output_dir = os.path.join(os.path.dirname(__file__), dest_folder)
         
@@ -62,22 +63,22 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
         for f in m_files:
             s = os.path.splitext(f)[-1]
             try:
-                converted_song_path = os.path.join(input_dir, f)
-                song: AudioSegment = AudioSegment.from_file(converted_song_path, s[1:])
-                ret.append(converted_song_path)
+                song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir, f), s[1:])
             except dubex.CouldntDecodeError:
                 print("The format '" + s + "' is not supported")
                 sys.exit(1)
             
             song_clip = song[starttime:starttime+length]
-            song_clip.export(os.path.join(output_dir, os.path.splitext(f)[0] + ".wav"), format="wav")
-
+            output_file = os.path.join(output_dir, os.path.splitext(f)[0] + ".wav")
+            song_clip.export(output_file, format="wav")
+            ret.append(output_file)
     return ret
 
 def process_suggestion_args(path: str, starttime: int, length: int) -> str:
     if not os.path.isfile(mr.ANNOY_INDEX_FILE):
         print("annoy indexfile does not exists, please provide a non empty dataset folder")
         sys.exit(1)
+
     if not os.path.isfile(path):
         print("filepath does not point to a file")
         sys.exit(1)
@@ -87,7 +88,8 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
 
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
-        os.makedirs(output_dir)
+
+    os.makedirs(output_dir)
 
     dir = os.listdir(os.path.join(os.path.dirname(__file__), REQ_SONG_CONVERTED))
 
@@ -99,8 +101,10 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
             print("The format '" + s + "' is not supported")
             sys.exit(1)
         song_clip = song[starttime:starttime+length]
-        output_path = os.path.join(output_dir, os.path.splitext(path)[0] + ".wav")
+        output_path = os.path.join(output_dir, os.path.split(os.path.splitext(path)[0])[-1] + ".wav")
+        print(output_path)
         song_clip.export(output_path, format="wav")
+
     else: 
         raise ValueError("destination directory: '" + REQ_SONG_CONVERTED + "' is not empty")
     return output_path
