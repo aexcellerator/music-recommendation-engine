@@ -61,6 +61,7 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
 
     if len(m_files) != 0:
         for f in m_files:
+            print(f"processing file: {f}")
             s = os.path.splitext(f)[-1]
             try:
                 song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir, f), s[1:])
@@ -102,7 +103,6 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
             sys.exit(1)
         song_clip = song[starttime:starttime+length]
         output_path = os.path.join(output_dir, os.path.split(os.path.splitext(path)[0])[-1] + ".wav")
-        print(output_path)
         song_clip.export(output_path, format="wav")
 
     else: 
@@ -118,4 +118,6 @@ if __name__ == "__main__":
 
     elif args.mode == "sg-mode":
         song_converted_path = process_suggestion_args(args.path, args.starttime, args.length)
-        print(mr.get_recommendation(song_converted_path, args.nn_count))
+        # format the suggestions in a overview
+        for idx, song_fp in enumerate(mr.get_recommendation(song_converted_path, args.nn_count), 1):
+            print(f"{idx}. ", os.path.split(os.path.splitext(song_fp)[0])[-1])
