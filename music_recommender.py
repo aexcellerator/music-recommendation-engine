@@ -37,8 +37,15 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
     if not ann_index.load(annoy_idx_file):
         raise IOError("Could not properly load annoy index file, the file may be corrupted please retry converting the dataset.")
     
+    # check that length of the input song and the songs in the dataset are of the same length
+    embd = pe.get_embedding(input_song).flatten()
+
+    if len(embd) != embedding_dim:
+        print("Could not provide a suggestion, the length of the input song does not match the length of the songs in the converted dataset. Specify the length via --startime and --length.")
+        sys.exit(1)
+
     # retrieve from annoy the nn_count nearest neighbors and return their idx
-    idxs_nn = ann_index.get_nns_by_vector(pe.get_embedding(input_song).flatten(), nn_count)
+    idxs_nn = ann_index.get_nns_by_vector(embd, nn_count)
 
     # return the file mappings of the indices
     return idx_songs_df.iloc[idxs_nn]["song_filepath"].to_list()
@@ -52,6 +59,7 @@ def build_ann_index(file_list: List[str]):
     with open(DEFAULT_MAPPINGS_METADATA, 'w') as opened_file:
         opened_file.write(str(n_dimensions) + "\n")
      
+    print("Generating embeddings for the files...")
     df = pd.DataFrame(file_list)
     df.to_csv(DEFAULT_MAPPINGS_METADATA, header=False, mode='a')
     annoy_index = AnnoyIndex(n_dimensions, METRIC)
@@ -60,6 +68,7 @@ def build_ann_index(file_list: List[str]):
     for index, file in enumerate(file_list):
         annoy_index.add_item(index, pe.get_embedding(file).flatten())
     annoy_index.build(50)
+    print("done.")
 
 if __name__ == "__main__":
     dataset_filelist = [
