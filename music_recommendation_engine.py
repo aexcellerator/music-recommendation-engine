@@ -120,3 +120,4 @@ if __name__ == "__main__":
         # format the suggestions in a overview
         for idx, song_fp in enumerate(mr.get_recommendation(song_converted_path, args.nn_count), 1):
             print(f"{idx}. ", os.path.split(os.path.splitext(song_fp)[0])[-1])
+        os.remove(song_converted_path)
