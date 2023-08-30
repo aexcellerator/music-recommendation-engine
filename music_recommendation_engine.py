@@ -2,14 +2,14 @@
 from pydub import AudioSegment
 import pydub.exceptions as dubex
 import os 
-from typing import List
+from typing import List, Final
 import argparse
 import sys
 import music_recommender as mr
 import shutil
 
-DATASET_CONVERTED = os.path.join(".cache", "dataset_converted")
-REQ_SONG_CONVERTED = os.path.join(".cache", "requestet_song_converted")
+DATASET_CONVERTED: Final[str] = os.path.join(os.path.dirname(__file__), ".cache", "dataset_converted")
+REQ_SONG_CONVERTED: Final[str] = os.path.join(os.path.dirname(__file__), ".cache", "requestet_song_converted")
 
 def is_directory(arg: str):
     if not os.path.isdir(arg):
@@ -54,10 +54,6 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
         dest_folder = DATASET_CONVERTED
     input_dir = os.path.join(os.path.dirname(__file__), path)
     output_dir = os.path.join(os.path.dirname(__file__), dest_folder)
-
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-        os.makedirs(output_dir)
         
     m_files: List[str] = os.listdir(input_dir)
     ret = []
