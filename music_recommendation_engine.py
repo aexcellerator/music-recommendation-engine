@@ -87,11 +87,9 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
     input_dir = os.path.join(os.path.dirname(__file__), path)
     output_dir = os.path.join(os.path.dirname(__file__), REQ_SONG_CONVERTED)
 
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-
-    os.makedirs(output_dir)
-
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
     dir = os.listdir(os.path.join(os.path.dirname(__file__), REQ_SONG_CONVERTED))
 
     if len(dir) == 0: 
@@ -103,6 +101,7 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
             sys.exit(1)
         song_clip = song[starttime:starttime+length]
         output_path = os.path.join(output_dir, os.path.split(os.path.splitext(path)[0])[-1] + ".wav")
+
         song_clip.export(output_path, format="wav")
 
     else: 
