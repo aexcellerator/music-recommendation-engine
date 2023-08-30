@@ -10,7 +10,7 @@ DEFAULT_MAPPINGS_METADATA = "recommendation-metadata.csv"
 ANNOY_INDEX_FILE = "annoy_indices.ann"
 METRIC = "euclidean"
 
-def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> List[str]:
+def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = DEFAULT_MAPPINGS_METADATA, annoy_idx_file: str = ANNOY_INDEX_FILE) -> List[str] | None:
     """returns filepath of recommendend song
     """  
     # retrieve dimensionality of the embeddings 
@@ -21,9 +21,10 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
             embedding_dim = int(embedding_dim_str)
         except:
             print("Could not load dimensions of embeddings, metadata file is corrupted please retry converting the dataset.")
-            sys.exit(1)
+            return
     else:
-        raise IOError("Could not load metadata file, the file does not exist please retry converting the dataset.")
+        print("Could not load metadata file, the file does not exist please retry converting the dataset.")
+        return
     
     # skip dimensions entry and read the index to file mappings
     idx_songs_df = pd.read_csv(metadata_file, skiprows=1, header=None, names=["song_filepath"], index_col=0)
@@ -32,17 +33,19 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
     ann_index = AnnoyIndex(embedding_dim, METRIC)
     
     if not os.path.exists(annoy_idx_file):
-        raise IOError("Could not load annoy index file, the file does not exist please retry converting the dataset.")
+        print("Could not load annoy index file, the file does not exist please retry converting the dataset.")
+        return
 
     if not ann_index.load(annoy_idx_file):
-        raise IOError("Could not properly load annoy index file, the file may be corrupted please retry converting the dataset.")
+        print("Could not properly load annoy index file, the file may be corrupted please retry converting the dataset.")
+        return
     
     # check that length of the input song and the songs in the dataset are of the same length
     embd = pe.get_embedding(input_song).flatten()
 
     if len(embd) != embedding_dim:
         print("Could not provide a suggestion, the length of the input song does not match the length of the songs in the converted dataset. Specify the length via --startime and --length.")
-        sys.exit(1)
+        return
 
     # retrieve from annoy the nn_count nearest neighbors and return their idx
     idxs_nn = ann_index.get_nns_by_vector(embd, nn_count)
@@ -52,8 +55,9 @@ def get_recommendation(input_song: str, nn_count: int = 1, metadata_file: str = 
 
 def build_ann_index(file_list: List[str]):
     if len(file_list) == 0:
-        print("dataset is empty, please rerun the dataset conversion")
+        print("dataset is empty, please rerun the dataset conversion with data!")
         sys.exit(1)
+
     n_dimensions = len(pe.get_embedding(file_list[0]).flatten())
 
     with open(DEFAULT_MAPPINGS_METADATA, 'w') as opened_file:

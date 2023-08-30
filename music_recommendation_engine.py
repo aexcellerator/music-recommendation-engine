@@ -6,7 +6,6 @@ from typing import List, Final
 import argparse
 import sys
 import music_recommender as mr
-import shutil
 
 DATASET_CONVERTED: Final[str] = os.path.join(os.path.dirname(__file__), ".cache", "dataset_converted")
 REQ_SONG_CONVERTED: Final[str] = os.path.join(os.path.dirname(__file__), ".cache", "requestet_song_converted")
@@ -27,9 +26,9 @@ def parse_arguments():
     dataset_group.add_argument('-p', '--path', help="specifies the folder to the input dataset", required=True)
     dataset_group.add_argument('-df', '--destinationfolder', type=is_directory, help="filepath where the intermediate converted dataset will be stored",
                    default=None)
-    dataset_group.add_argument('-t', '--starttime', type=int, help="starttime of the songs in ms as of when the embedding will be created",
+    dataset_group.add_argument('-t', '--starttime', type=int, help="starttime of the songs in ms as of when the embedding will be created. This value has to be in songs time length boundaries.",
                     default=60000)
-    dataset_group.add_argument('-l', '--length', type=int,  help="length of the song excerpts in, on which basis the embedding is calculated",
+    dataset_group.add_argument('-l', '--length', type=int,  help="length of the song excerpts in, on which basis the embedding is calculated. This value has to be >= 16 and starttime+length has to be inside the songs time length boundaries",
                     default=10000)
     
     suggestion_mode = subparser.add_parser("sg-mode", help="specify this to change to suggestion mode")
@@ -66,9 +65,9 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
             try:
                 song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir, f), s[1:])
             except dubex.CouldntDecodeError:
-                print("The format '" + s + "' is not supported")
+                print("The format '" + s + "' is not supported! Please reconvert the dataset!")
                 sys.exit(1)
-            
+                
             song_clip = song[starttime:starttime+length]
             output_file = os.path.join(output_dir, os.path.splitext(f)[0] + ".wav")
             song_clip.export(output_file, format="wav")
@@ -76,6 +75,7 @@ def process_dataset_args(path: str, dest_folder: str, starttime: int, length: in
     return ret
 
 def process_suggestion_args(path: str, starttime: int, length: int) -> str:
+
     if not os.path.isfile(mr.ANNOY_INDEX_FILE):
         print("annoy indexfile does not exists, please provide a non empty dataset folder")
         sys.exit(1)
@@ -97,13 +97,13 @@ def process_suggestion_args(path: str, starttime: int, length: int) -> str:
         try:
             song: AudioSegment = AudioSegment.from_file(os.path.join(input_dir), s[1:])
         except dubex.CouldntDecodeError:
-            print("The format '" + s + "' is not supported")
+            print("The format '" + s + "' is not supported! Please reconvert the dataset!")
             sys.exit(1)
+            
         song_clip = song[starttime:starttime+length]
         output_path = os.path.join(output_dir, os.path.split(os.path.splitext(path)[0])[-1] + ".wav")
 
         song_clip.export(output_path, format="wav")
-
     else: 
         raise ValueError("destination directory: '" + REQ_SONG_CONVERTED + "' is not empty")
     return output_path
@@ -112,12 +112,23 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     if args.mode == "ds-mode":
-        dataset_converted_paths: List[str] = process_dataset_args(args.path, args.destinationfolder, args.starttime, args.length) 
+        dataset_converted_paths = process_dataset_args(args.path, args.destinationfolder, args.starttime, args.length) 
+        if dataset_converted_paths == None:
+            sys.exit(1) 
+
         mr.build_ann_index(dataset_converted_paths)
 
     elif args.mode == "sg-mode":
         song_converted_path = process_suggestion_args(args.path, args.starttime, args.length)
+        recommendation_list = mr.get_recommendation(song_converted_path, args.nn_count)
+
+        if os.path.isfile(song_converted_path):
+            os.remove(song_converted_path)
+
+        if recommendation_list == None:
+            sys.exit(1)
+
         # format the suggestions in a overview
-        for idx, song_fp in enumerate(mr.get_recommendation(song_converted_path, args.nn_count), 1):
+        for idx, song_fp in enumerate(recommendation_list, 1):
             print(f"{idx}. ", os.path.split(os.path.splitext(song_fp)[0])[-1])
-        os.remove(song_converted_path)
+
