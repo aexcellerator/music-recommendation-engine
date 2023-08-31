@@ -5,11 +5,11 @@ A local music recommendation engine
 ### Goal:
 The goal is to use a customizable dataset of songs and an input audio file to find songs that are as similar as possible from the dataset and print these to the user.
 
-The first step is to convert all possible audio file formats into the appropriate lossless WAV format for the MAX-audio-embedding-generator, so that it generates an embedding based on the amplitudes, which encodes each second of the song in 128 numbers. This is done for each song in the dataset. 
+The first step is to convert all possible audio file formats into the appropriate lossless WAV format for the [MAX-Audio-Embedding-Generator](https://github.com/IBM/MAX-Audio-Embedding-Generator), so that it generates an embedding based on a machine learning model, which encodes each second of the song in 128 numbers. This is done for each song in the dataset. 
 
 Then the user can enter another file, the input file, which will also be converted to the appropriate WAV format and for which the embedding will be generated. 
 
-Once this is done, Annoy is used for generating the recommendations. In the background, Annoy leverages the implementation of an approximate nearest neighbor algorithm. Annoy uses integer indices to identify a vector, so our implementation creates a metadata file to map the indices back to the wav files when building the nearest neighbor data structure. On dataset change the user has to rebuild dataset files using the dataset-mode. 
+Once this is done, [Annoy](https://github.com/spotify/annoy) is used for generating the recommendations. In the background, Annoy leverages the implementation of an approximate nearest neighbor algorithm. Annoy uses integer indices to identify a vector, so our implementation creates a metadata file to map the indices back to the wav files when building the nearest neighbor data structure. On dataset change the user has to rebuild dataset files using the dataset-mode. 
 
 This method saves computing time later when being in suggestion-mode. Finally the nearest neighbors are calculated and returned using the previously built AnnoyIndex. Each song is represented by a vector with (seconds of the clip)*128 dimensions, and Annoy uses the Euclidean metric to decide which vectors are close and which are not.
 
@@ -51,6 +51,7 @@ Second, it should be fairly easy to extend the project so that it can construct 
 
 ## Installation
 - Requires a linux distribution with python, pip, ffmpeg, gcc and docker installed.
+- Music files formatted the way that ffmpeg can decode them
 - Install required python libraries.
     ```
     pip install numpy pandas pydub requests annoy
@@ -85,7 +86,7 @@ The second mode "sg-mode" is for when the user wants to receive a suggestion bas
 
 ` -h ` show help messages
 
-` -p `  | ` --path ` specifies the folder of the input dataset
+` -p `  | ` --path ` specifies the folder of the input dataset, the directory has to contain just correctly formatted music files
 
 ` -df ` | ` --destinationfolder ` filepath where the intermediate converted dataset will be stored
 
@@ -98,7 +99,7 @@ The second mode "sg-mode" is for when the user wants to receive a suggestion bas
 
 ` -h ` show help messages
 
-` -p ` | ` --path ` specifies the folder of the input dataset
+` -p ` | ` --path ` specifies the path to the input file, the file has to be a correctly formatted music file
 
 ` -t ` | ` --starttime ` of the songs in ms as of when the embedding will be created. This value has to be in song's time length boundaries
 
@@ -108,13 +109,13 @@ The second mode "sg-mode" is for when the user wants to receive a suggestion bas
 
 
 ### A simple usage of the program:
-```python
+```
 python3 music_recommender_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
 ```
 takes a snippet of each song from minute 0:30 to 0:45 (15 secs), converts these to WAV format, and stores these in "/home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_conv,"
 then calculates the embedding for each clip.
 
-```python
+```
 python3 music_recommender_engine.py sg-mode -p "input_song/BETONSCHUH - Kollegah.mp3" -l 15000 -t 70000 -n 5
 ```
 takes a snippet from "input_song/BETONSCHUH - Kollegah.mp3" from minute 1:10 to 1:25 (has to match with the length converted dataset of 15 secs) and calculates the embedding,
