@@ -126,12 +126,12 @@ The recommended songs are ordered descending by how similar they are to the inpu
 
 For example, for the song "BETONSCHUH - Kollegah.mp3," which is from the genre "German rap," only songs of the same genre should be suggested.
 
-When you try it out, the 5 nearest neighbors are: 
-1. "24 Karat - Kollegah.wav," 
-2. "24 Karat (Remix) - Kollegah feat. Seyed & Ali As.wav," 
-3. "Weed mit nach Bayern - RAF Camora & BonezMC.wav," 
-4. "LUXURY - Kollegah.wav," and 
-5. "UNANTASTBAR - Kollegah.wav."
+When you try it out, the 5 nearest neighbors are:
+1. 24 Karat - Kollegah
+2. 24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+3. Weed mit nach Bayern - RAF Camora & BonezMC
+4. LUXURY - Kollegah
+5. UNANTASTBAR - Kollegah
 
 This correlates perfectly with the prediction, because all songs are from the genre Deutschrap, and since "24 Karat.wav" and "24 Karat (Remix).wav" are very similar to each other, it follows that both are being suggested consecutively. 
 
@@ -145,15 +145,11 @@ python3 music_recommendation_engine.py sg-mode -p "BETONSCHUH.mp3 - Kollegah" -n
 
 Result:
 
-	1.  24 Karat - Kollegah
-	
-	2.  24 Karat (Remix) - Kollegah feat. Seyed & Ali As
-	
-	3.  Weed Mit Nach Bayern - RAF Camora & BonezMC
-	
-	4.  LUXURY - Kollegah
-	
-	5.  UNANTASTBAR - Kollegah feat. Asche
+	1. 24 Karat - Kollegah
+	2. 24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+	3. Weed Mit Nach Bayern - RAF Camora & BonezMC
+	4. LUXURY - Kollegah
+	5. UNANTASTBAR - Kollegah feat. Asche
 	
 (note that "BETONSCHUH - Kollegah.mp3" was not in the dataset; otherwise, it would be the first suggestion)
 
