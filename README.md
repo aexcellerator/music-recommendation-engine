@@ -142,6 +142,7 @@ Command Prompt:
 ``` 
 python3 music_recommendation_engine.py sg-mode -p "BETONSCHUH.mp3 - Kollegah" -n 5
 ```
+
 Result:
 
 	1.  24 Karat - Kollegah
