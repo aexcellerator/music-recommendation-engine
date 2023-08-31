@@ -34,5 +34,14 @@ A local music recommendation engine
         docker run -it -p 5000:5000 quay.io/codait/MAX-Audio-Embedding-Generator
         ```
 - More information on the python libraries can be found on their github sites: [pydub](https://github.com/jiaaro/pydub), [requests](https://github.com/psf/requests), [annoy](https://github.com/spotify/annoy)
+- Clone this repository into a folder of your choice using
+    ```
+    git clone https://github.com/aexcellerator/music-recommendation-engine.git
+    ```
+- Test the executability while being in the repositories folder with
+    ```
+    python3 music_recommendation_engine.py --help
+    ```
+    which should print the help message of the program
 - Note: The project should work on the Windows operating system when all dependencies have been installed, but we will not guarantee that.
 - If there are any issues regarding the installation, please create a new Issue under the Issues Tab at this repository.
