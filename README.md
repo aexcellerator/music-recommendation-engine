@@ -61,7 +61,7 @@ Second, it should be fairly easy to extend the project so that it can construct 
     2. Setup the MAX-Audio-Embedding-Generator using the guide on [their README.md](https://github.com/IBM/MAX-Audio-Embedding-Generator).
         - For direct deployment use the command:
         ```
-        docker run -it -p 5000:5000 quay.io/codait/MAX-Audio-Embedding-Generator
+        docker run -it -p 5000:5000 quay.io/codait/max-audio-embedding-generator
         ```
 - More information on the python libraries can be found on their github sites: [pydub](https://github.com/jiaaro/pydub), [requests](https://github.com/psf/requests), [annoy](https://github.com/spotify/annoy)
 - Clone this repository into a folder of your choice using
