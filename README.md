@@ -21,7 +21,7 @@ A local music recommendation engine
     4. (helper\_function.py: maybe needed to improve the project layout)
 
 ## Installation
-- Requires a linux distribution with python, pip, ffmpeg and docker installed.
+- Requires a linux distribution with python, pip, ffmpeg, gcc and docker installed.
 - Install required python libraries.
     ```
     pip install numpy pandas pydub requests annoy
@@ -43,5 +43,5 @@ A local music recommendation engine
     python3 music_recommendation_engine.py --help
     ```
     which should print the help message of the program
-- Note: The project should work on the Windows operating system when all dependencies have been installed, but we will not guarantee that.
+- Note: The project should work on the Windows operating system when all dependencies have been installed, but this is not tested and we will not guarantee that.
 - If there are any issues regarding the installation, please create a new Issue under the Issues Tab at this repository.
