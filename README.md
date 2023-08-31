@@ -1,7 +1,7 @@
 # music-recommendation-engine
 A music recommendation engine that works on local music files.
 
-Disclaimer: All rights to the music content in this repository belongs to their creators and are only kept in here as examples for research purposes. If you have any problems with that please create a issue in this repository.
+Disclaimer: All rights to the music content in this repository belongs to their creators and are only kept in here as examples for research purposes. If you have any problems with that please create a issue in this repository. These files are NOT licensed under the MIT license!
 ## Overview goal/motivation/structure:
 ### Goal:
 The goal is to use a customizable dataset of songs and an input audio file to find songs that are as similar as possible from the dataset and print these to the user.
