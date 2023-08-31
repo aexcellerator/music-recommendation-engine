@@ -16,6 +16,7 @@ This method saves computing time later when being in suggestion-mode. Finally th
 ### Motivation: 
 There are several use cases for our project. 
 First and foremost, it serves as a song recommender to discover new songs you will probably like because they are similar to the song you already find great. It could also be expanded so that the project only provides recommendations for songs with different artists to discover a new variety of songs. 
+
 Second, it should be fairly easy to extend the project so that it can construct a playlist with songs of the same genre or with songs that are totally different from one another. Everything functions locally.
 
 ### Structure:
@@ -38,13 +39,13 @@ Second, it should be fairly easy to extend the project so that it can construct 
     
 5. Temporarily created files by the program:
 
-    - annoy_indices.ann:
+    - `.cache/annoy_indices.ann`:
         Stores the internal Annoy data structure.
-    - .cache/dataset_converted:
+    - `.cache/dataset_converted`:
         Stores all converted WAV files.
-    - .cache/requested_song_converted:
+    - `.cache/requested_song_converted`:
         Stores the WAV input file.
-    - .cache/recommendation-metadata.csv:
+    - `.cache/recommendation-metadata.csv`:
         Stores the embedding vectors of each song and the mappings between the filepaths of the intermediate song files and the Annoy indices.
 
 
@@ -80,7 +81,7 @@ There are two modes: the first mode "ds-mode" is for when the user wants to conv
 
 The second mode "sg-mode" is for when the user wants to receive a suggestion based on their input song.
 
-ds-mode:
+#### ds-mode:
 
 ` -h ` show help messages
 
@@ -93,7 +94,7 @@ ds-mode:
 ` -l ` | ` --length ` length of the song excerpts, on which the embedding is calculated. This value has to be >= 16, and starttime+length has to be inside the song's time length boundaries
 
 
-sg-mode:
+#### sg-mode:
 
 ` -h ` show help messages
 
@@ -106,7 +107,7 @@ sg-mode:
 ` -n ` | ` --nn-count ` number of nearest neighbor suggestions
 
 
-A simple usage of the program:
+### A simple usage of the program:
 ```python
 python3 music_recommender_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
 ```
@@ -137,15 +138,16 @@ This correlates perfectly with the prediction, because all songs are from the ge
 What also stands out is that four of the five suggested songs are from the same artist (Kollegah) as the input file.
 
 
-Command Prompt: ```python 
+Command Prompt: 
+``` 
 python3 music_recommendation_engine.py sg-mode -p "BETONSCHUH.mp3 - Kollegah" -n 5
 ```
 Result:
-	` 1. `  24 Karat - Kollegah
-	` 2. `  24 Karat (Remix) - Kollegah feat. Seyed & Ali As
-	` 3. `  Weed Mit Nach Bayern - RAF Camora & BonezMC
-	` 4. `  LUXURY - Kollegah
-	` 5. `  UNANTASTBAR - Kollegah feat. Asche
+	1.  24 Karat - Kollegah
+	2.  24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+	3.  Weed Mit Nach Bayern - RAF Camora & BonezMC
+	4.  LUXURY - Kollegah
+	5.  UNANTASTBAR - Kollegah feat. Asche
 	
 (note that "BETONSCHUH - Kollegah.mp3" was not in the dataset; otherwise, it would be the first suggestion)
 
