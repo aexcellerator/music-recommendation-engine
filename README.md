@@ -110,13 +110,13 @@ The second mode "sg-mode" is for when the user wants to receive a suggestion bas
 
 ### A simple usage of the program:
 ```
-python3 music_recommender_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
+python3 music_recommendation_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
 ```
 takes a snippet of each song from minute 0:30 to 0:45 (15 secs), converts these to WAV format, and stores these in "/home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_conv,"
 then calculates the embedding for each clip.
 
 ```
-python3 music_recommender_engine.py sg-mode -p "input_song/BETONSCHUH - Kollegah.mp3" -l 15000 -t 70000 -n 5
+python3 music_recommendation_engine.py sg-mode -p "input_song/BETONSCHUH - Kollegah.mp3" -l 15000 -t 70000 -n 5
 ```
 takes a snippet from "input_song/BETONSCHUH - Kollegah.mp3" from minute 1:10 to 1:25 (has to match with the length converted dataset of 15 secs) and calculates the embedding,
 determines the 5 nearest neighbors (most similar embeddings) of "input_song/BETONSCHUH - Kollegah.mp3" and prints them as a list.
