@@ -143,10 +143,15 @@ Command Prompt:
 python3 music_recommendation_engine.py sg-mode -p "BETONSCHUH.mp3 - Kollegah" -n 5
 ```
 Result:
+
 	1.  24 Karat - Kollegah
+	
 	2.  24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+	
 	3.  Weed Mit Nach Bayern - RAF Camora & BonezMC
+	
 	4.  LUXURY - Kollegah
+	
 	5.  UNANTASTBAR - Kollegah feat. Asche
 	
 (note that "BETONSCHUH - Kollegah.mp3" was not in the dataset; otherwise, it would be the first suggestion)
