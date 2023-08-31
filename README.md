@@ -1,27 +1,57 @@
 # music-recommendation-engine
 A local music recommendation engine
-## requirement list:
-- libraries/tools: 
-    1. Embedding Generator: https://github.com/IBM/MAX-Audio-Embedding-Generator to create Embeddings of audio files
-    2. pandas, numpy
-    3. sklearn to find music which embedding is alike using approximate nearest neighbors (alternatively we will be using annoy, a library which is specified to do just that)
-    4. matplotlib, seaborn (eventually to visualize relations between music)
-    5. pydup, ffmpeg (for music file conversion)
 
-- step-by-step list
-    1. get a batch of music files convert them automatically into the appropriate format and extract their metadata
-    2. use the embedding generator to generate embeddings of these
-    3. the user then can input a music file in the application via command line
-    4. the user gets a recommendation based upon the nearest neighbor found (the user can also specify how many nearest neighbors should be suggested)
+## Overview goal/motivation/structure:
+### Goal:
+The goal is to use a customizable dataset of songs and an input audio file to find songs that are as similar as possible from the dataset and print these to the user.
 
-- processing files:
-    1. music\_preprocessing.py [input: a music file of various formats (which are able to be parsed by pydub)/a list of files; output: a formatted wav music file for the input of the embedding generator, the corresponding music tags]
-    2. process\_embeddings.py [input: the wav files; output: embeddings, corresponding identification to relate the tags afterwards]
-    3. music\_recommender.py [input: the embeddings, the identification, user input music file; output: the suggested music]
-    4. (helper\_function.py: maybe needed to improve the project layout)
+The first step is to convert all possible audio file formats into the appropriate lossless WAV format for the [MAX-Audio-Embedding-Generator](https://github.com/IBM/MAX-Audio-Embedding-Generator), so that it generates an embedding based on a machine learning model, which encodes each second of the song in 128 numbers. This is done for each song in the dataset. 
+
+Then the user can enter another file, the input file, which will also be converted to the appropriate WAV format and for which the embedding will be generated. 
+
+Once this is done, [Annoy](https://github.com/spotify/annoy) is used for generating the recommendations. In the background, Annoy leverages the implementation of an approximate nearest neighbor algorithm. Annoy uses integer indices to identify a vector, so our implementation creates a metadata file to map the indices back to the wav files when building the nearest neighbor data structure. On dataset change the user has to rebuild dataset files using the dataset-mode. 
+
+This method saves computing time later when being in suggestion-mode. Finally the nearest neighbors are calculated and returned using the previously built AnnoyIndex. Each song is represented by a vector with (seconds of the clip)*128 dimensions, and Annoy uses the Euclidean metric to decide which vectors are close and which are not.
+
+### Motivation: 
+There are several use cases for our project. 
+First and foremost, it serves as a song recommender to discover new songs you will probably like because they are similar to the song you already find great. It could also be expanded so that the project only provides recommendations for songs with different artists to discover a new variety of songs. 
+
+Second, it should be fairly easy to extend the project so that it can construct a playlist with songs of the same genre or with songs that are totally different from one another. Everything functions locally.
+
+### Structure:
+#### Files:
+1. process_embeddings.py:
+
+    Receives a filepath to a WAV file and sends a request to the MAX-Audio-Embedding-Generator, which converts the WAV file into a numpy ndarray with the corresponding numbers.
+    
+2. music_recommender.py:
+
+    One function builds the Annoy Index and the corresponding metadata files and saves them to .cache. The other one calculates recommendations from the saved Index file.
+    
+3. music_recommendation_engine.py:
+
+    Is the main project script and handles the user inputs and the conversion to the intermediate WAV files.
+    
+4. README.md: 
+
+    Contains all the necessary information regarding the project.
+    
+5. Temporarily created files by the program:
+
+    - `.cache/annoy_indices.ann`:
+        Stores the internal Annoy data structure.
+    - `.cache/dataset_converted`:
+        Stores all converted WAV files.
+    - `.cache/requested_song_converted`:
+        Stores the WAV input file.
+    - `.cache/recommendation-metadata.csv`:
+        Stores the embedding vectors of each song and the mappings between the filepaths of the intermediate song files and the Annoy indices.
+
 
 ## Installation
 - Requires a linux distribution with python, pip, ffmpeg, gcc and docker installed.
+- Music files formatted the way that ffmpeg can decode them
 - Install required python libraries.
     ```
     pip install numpy pandas pydub requests annoy
@@ -45,3 +75,81 @@ A local music recommendation engine
     which should print the help message of the program
 - Note: The project should work on the Windows operating system when all dependencies have been installed, but this is not tested and we will not guarantee that.
 - If there are any issues regarding the installation, please create a new Issue under the Issues Tab at this repository.
+
+
+## Usage/Commands:
+There are two modes: the first mode "ds-mode" is for when the user wants to convert/update their dataset.
+
+The second mode "sg-mode" is for when the user wants to receive a suggestion based on their input song.
+
+#### ds-mode:
+
+` -h ` show help messages
+
+` -p `  | ` --path ` specifies the folder of the input dataset, the directory has to contain just correctly formatted music files
+
+` -df ` | ` --destinationfolder ` filepath where the intermediate converted dataset will be stored
+
+` -t ` | ` --starttime ` of the songs in ms as of when the embedding will be created. This value has to be in song's time length boundaries
+
+` -l ` | ` --length ` length of the song excerpts, on which the embedding is calculated. This value has to be >= 16, and starttime+length has to be inside the song's time length boundaries
+
+
+#### sg-mode:
+
+` -h ` show help messages
+
+` -p ` | ` --path ` specifies the path to the input file, the file has to be a correctly formatted music file
+
+` -t ` | ` --starttime ` of the songs in ms as of when the embedding will be created. This value has to be in song's time length boundaries
+
+` -l ` | ` --length ` length of the song excerpts, on which the embedding is calculated. This value has to be >= 16, and starttime+length has to be inside the song's time length boundaries
+
+` -n ` | ` --nn-count ` number of nearest neighbor suggestions
+
+
+### A simple usage of the program:
+```
+python3 music_recommender_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
+```
+takes a snippet of each song from minute 0:30 to 0:45 (15 secs), converts these to WAV format, and stores these in "/home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_conv,"
+then calculates the embedding for each clip.
+
+```
+python3 music_recommender_engine.py sg-mode -p "input_song/BETONSCHUH - Kollegah.mp3" -l 15000 -t 70000 -n 5
+```
+takes a snippet from "input_song/BETONSCHUH - Kollegah.mp3" from minute 1:10 to 1:25 (has to match with the length converted dataset of 15 secs) and calculates the embedding,
+determines the 5 nearest neighbors (most similar embeddings) of "input_song/BETONSCHUH - Kollegah.mp3" and prints them as a list.
+
+
+## How to interpret the results: 
+The recommended songs are ordered descending by how similar they are to the input song. The more neighbors the user wants to determine, the more songs will be listed.
+
+For example, for the song "BETONSCHUH - Kollegah.mp3," which is from the genre "German rap," only songs of the same genre should be suggested.
+
+When you try it out, the 5 nearest neighbors are:
+1. 24 Karat - Kollegah
+2. 24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+3. Weed mit nach Bayern - RAF Camora & BonezMC
+4. LUXURY - Kollegah
+5. UNANTASTBAR - Kollegah
+
+This correlates perfectly with the prediction, because all songs are from the genre Deutschrap, and since "24 Karat.wav" and "24 Karat (Remix).wav" are very similar to each other, it follows that both are being suggested consecutively. 
+
+What also stands out is that four of the five suggested songs are from the same artist (Kollegah) as the input file.
+
+
+Command Prompt: 
+``` 
+python3 music_recommendation_engine.py sg-mode -p "BETONSCHUH.mp3 - Kollegah" -n 5
+```
+
+Result:
+1. 24 Karat - Kollegah
+2. 24 Karat (Remix) - Kollegah feat. Seyed & Ali As
+3. Weed Mit Nach Bayern - RAF Camora & BonezMC
+4. LUXURY - Kollegah
+5. UNANTASTBAR - Kollegah feat. Asche
+	
+(note that "BETONSCHUH - Kollegah.mp3" was not in the dataset; otherwise, it would be the first suggestion)
+
