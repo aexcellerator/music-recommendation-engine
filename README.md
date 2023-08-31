@@ -1,6 +1,7 @@
 # music-recommendation-engine
-A local music recommendation engine
+A music recommendation engine that works on local music files.
 
+Disclaimer: All rights to the music content in this repository belongs to their creators and are only kept in here as examples for research purposes.
 ## Overview goal/motivation/structure:
 ### Goal:
 The goal is to use a customizable dataset of songs and an input audio file to find songs that are as similar as possible from the dataset and print these to the user.
@@ -109,6 +110,7 @@ The second mode "sg-mode" is for when the user wants to receive a suggestion bas
 
 
 ### A simple usage of the program:
+DISCLAIMER: the paths choosen here are just examples and have to be changed by the user to point to the file/directory.
 ```
 python3 music_recommendation_engine.py ds-mode -p /home/user/Documents/Studium/Scientific_Python/music-recommendation-engine/dataset_raw -l 15000 -t 30000 -df "dataset_conv"
 ```
@@ -122,7 +124,9 @@ takes a snippet from "input_song/BETONSCHUH - Kollegah.mp3" from minute 1:10 to 
 determines the 5 nearest neighbors (most similar embeddings) of "input_song/BETONSCHUH - Kollegah.mp3" and prints them as a list.
 
 
-## How to interpret the results: 
+## How to interpret the results:
+DISCLAIMER: the paths choosen here are just examples and have to be changed by the user to point to the file/directory.
+
 The recommended songs are ordered descending by how similar they are to the input song. The more neighbors the user wants to determine, the more songs will be listed.
 
 For example, for the song "BETONSCHUH - Kollegah.mp3," which is from the genre "German rap," only songs of the same genre should be suggested.
